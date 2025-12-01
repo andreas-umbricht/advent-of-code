@@ -1,55 +1,38 @@
 import java.io.BufferedReader
 import java.io.File
+import kotlin.time.measureTime
 
 fun main() {
     val input = getInput()
 
     val linkedList = createLinkedList()
 
-    puzzle1(input, linkedList)
-    puzzle2(input, linkedList)
+    puzzle(input, linkedList)
 }
 
-private fun puzzle1(input: List<String>, linkedList: List<Node>) {
-    var passcode = 0
+private fun puzzle(input: List<String>, linkedList: List<Node>) {
+    var passThroughPasscode = 0
+    var landOnPasscode = 0
     var currentElement = linkedList.first { it.index == 50 }
 
     input.forEach {
         if (it.first() == 'L') {
             repeat(it.removePrefix("L").toInt()) {
                 currentElement = currentElement.previous!!
+                if (currentElement.index == 0) passThroughPasscode++
             }
         } else {
             repeat(it.removePrefix("R").toInt()) {
                 currentElement = currentElement.next!!
+                if (currentElement.index == 0) passThroughPasscode++
             }
         }
 
-        if (currentElement.index == 0) passcode++
+        if (currentElement.index == 0) landOnPasscode++
     }
 
-    println("Puzzle 1: $passcode")
-}
-
-private fun puzzle2(input: List<String>, linkedList: List<Node>) {
-    var passcode = 0
-    var currentElement = linkedList.first { it.index == 50 }
-
-    input.forEach {
-        if (it.first() == 'L') {
-            repeat(it.removePrefix("L").toInt()) {
-                currentElement = currentElement.previous!!
-                if (currentElement.index == 0) passcode++
-            }
-        } else {
-            repeat(it.removePrefix("R").toInt()) {
-                currentElement = currentElement.next!!
-                if (currentElement.index == 0) passcode++
-            }
-        }
-    }
-
-    println("Puzzle 2: $passcode")
+    println("Puzzle 1: $landOnPasscode")
+    println("Puzzle 2: $passThroughPasscode")
 }
 
 private fun getInput(): List<String> {

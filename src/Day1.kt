@@ -1,6 +1,5 @@
 import java.io.BufferedReader
 import java.io.File
-import kotlin.time.measureTime
 
 fun main() {
     val input = getInput()

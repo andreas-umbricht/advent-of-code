@@ -5,41 +5,71 @@ import kotlin.math.pow
 fun main() {
     val input = getInput()
     var passcode = 0L
+    var passcode2 = 0L
 
     input.forEach {
         val splits = it.split("-")
         var startNumber = splits.first().toLong()
         val endNumber = splits.last().toLong()
 
-        val ranges = mutableListOf<Range>()
-
         while (startNumber < endNumber) {
-            if (startNumber.getAmountOfDigits() % 2 == 0) {
-                ranges.add(
-                    Range(
-                        start = startNumber,
-                        end = minOf(10.0.pow(startNumber.getAmountOfDigits()).toLong() - 1, endNumber)
-                    )
-                )
-            }
+            passcode += solve1(
+                start = startNumber,
+                end = minOf(10.0.pow(startNumber.getAmountOfDigits()).toLong() - 1, endNumber)
+            )
+
+            passcode2 += solve2(
+                start = startNumber,
+                end = minOf(10.0.pow(startNumber.getAmountOfDigits()).toLong() - 1, endNumber)
+            )
 
             startNumber = 10.0.pow(startNumber.getAmountOfDigits()).toLong()
         }
+    }
 
-        passcode += ranges.sumOf {
-            step(
-                start = it.start,
-                end = it.end
-            )
+    println("Puzzle 1: $passcode")
+    println("Puzzle 2: $passcode2")
+}
+
+private fun solve2(start: Long, end: Long): Long {
+    val digits = start.getAmountOfDigits()
+
+    val results = mutableSetOf<Long>()
+
+    for(cut in 1 .. digits / 2) {
+        if (digits % cut == 0) {
+            val startChunks = start.getChunks(cut)
+            val endChunks = end.getChunks(cut)
+
+            for(n in startChunks.first()..endChunks.first()) {
+                val res = (1..(digits / cut)).fold(0L) { acc, _ -> acc * 10.0.pow(cut).toLong() + n }
+                if (res in start..end) {
+                    results.add(res)
+                }
+            }
         }
     }
 
-    println("PASSCODE: $passcode")
+    return results.sum()
 }
 
-private fun step(start: Long, end: Long): Long {
+private fun Long.getChunks(n: Int): List<Long> {
+    var x = this
+    val res = mutableListOf<Long>()
+
+    while (x != 0L) {
+        res.add(x % 10.0.pow(n).toInt())
+        x /= 10.0.pow(n).toInt()
+    }
+
+    return res.reversed()
+}
+
+private fun solve1(start: Long, end: Long): Long {
     val startDigits = start.getAmountOfDigits()
     val endDigits = end.getAmountOfDigits()
+
+    if (startDigits % 2 != 0) return 0
 
     if (startDigits != endDigits) return 0
 
@@ -53,16 +83,6 @@ private fun step(start: Long, end: Long): Long {
 
     var result = 0L
 
-    /*1  2  0  0          4  9  2  3 <= start
-    1  2  2  1          8  1  7  3 <= end
-
-    1   2   0   0
-    1   2   0   1
-    1   2   0   2
-    1   2   0   3
-    1   2   0   4
-    1   2   0   5*/
-
     if (startSecondHalf > startFirstHalf) {
         startFirstHalf++
 
@@ -72,19 +92,11 @@ private fun step(start: Long, end: Long): Long {
     val lastPossible = if (endFirstHalf <= endSecondHalf) endFirstHalf else endFirstHalf - 1
 
     for(i in startFirstHalf..lastPossible) {
-        println("FOUND: ${(10.0.pow(halfDigits).toInt() * i) + i}")
         result += (10.0.pow(halfDigits).toInt() * i) + i
     }
-    /*1  2  0  1          0  0  0  0 <= start
-    1  2  2  1          8  1  7  3 <= end*/
 
     return result
 }
-
-data class Range(
-    val start: Long,
-    val end: Long
-)
 
 private fun Long.getAmountOfDigits(): Int {
     var n = this

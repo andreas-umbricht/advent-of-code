@@ -8,7 +8,7 @@ fun main() {
     val passCode2 = solve2(input)
 
     println("Passcode1: $passCode1")
-    println("Passcode1: $passCode2")
+    println("Passcode2: $passCode2")
 }
 
 private fun solve2(input: List<String>): Long {

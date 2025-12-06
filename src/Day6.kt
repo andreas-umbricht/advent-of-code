@@ -5,8 +5,47 @@ fun main() {
     val input = getInput()
 
     val passCode1 = solve1(input)
+    val passCode2 = solve2(input)
 
     println("Passcode1: $passCode1")
+    println("Passcode2: $passCode2")
+}
+
+private fun solve2(input: List<String>): String {
+    val operations = mutableListOf<Operation>()
+
+    val relevantInput = input.dropLast(1)
+
+    val operationNumbers = mutableListOf<MutableList<String>>()
+    var operationNumbersIndex = 0
+
+    for (i in 0..input.maxOf { it.length }) {
+        val a = relevantInput.fold("") { acc, string -> acc + (string.getOrNull(i) ?: "") }
+        if (a.isNotBlank()) {
+            if (operationNumbers.getOrNull(operationNumbersIndex) == null) {
+                operationNumbers.add(mutableListOf())
+            }
+            operationNumbers[operationNumbersIndex].add(a.trim())
+        } else {
+            operationNumbersIndex++
+        }
+    }
+
+    input.last().split(" ").filter { it.isNotEmpty() }.forEachIndexed { index, operation ->
+        operations.add(
+            Operation(sign = operation, numbers = operationNumbers[index])
+        )
+    }
+
+    val operationResults = operations.map {
+        if (it.sign == "+") {
+            it.numbers.sum()
+        } else {
+            it.numbers.fold("1") { prev, it -> multiplyTwoString(prev, it) }
+        }
+    }
+
+    return operationResults.sum()
 }
 
 private fun solve1(input: List<String>): String {
